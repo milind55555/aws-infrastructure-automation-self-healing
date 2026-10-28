@@ -1,0 +1,42 @@
+pipeline {
+  agent any
+  options {
+    timestamps()
+    disableConcurrentBuilds()
+  }
+  environment {
+    IMAGE_REPOSITORY = "${IMAGE_REPOSITORY ?: 'self-healing-demo'}"
+    IMAGE_TAG = "${BUILD_NUMBER}"
+  }
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+    stage('Python tests') {
+      steps {
+        sh '''
+          python3 -m venv .venv
+          . .venv/bin/activate
+          pip install -r app/requirements-dev.txt
+          pytest -q app
+        '''
+      }
+    }
+    stage('Build container') {
+      steps {
+        sh 'docker build -f docker/Dockerfile -t "$IMAGE_REPOSITORY:$IMAGE_TAG" .'
+      }
+    }
+    stage('Image metadata') {
+      steps {
+        sh 'docker image inspect "$IMAGE_REPOSITORY:$IMAGE_TAG" --format "{{.Id}}"'
+      }
+    }
+  }
+  post {
+    always {
+      sh 'docker image prune -f || true'
+      cleanWs()
+    }
+  }
+}

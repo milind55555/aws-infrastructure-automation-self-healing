@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: self-healing-demo-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app: self-healing-demo
+  policyTypes:
+    - Ingress
+  ingress:
+    # Adjust this policy to the labels/namespaces used by your ingress controller.
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 5000

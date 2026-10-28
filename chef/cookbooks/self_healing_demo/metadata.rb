@@ -1,0 +1,7 @@
+name 'self_healing_demo'
+maintainer 'Portfolio Demo'
+maintainer_email 'devnull@example.invalid'
+license 'MIT'
+description 'Configures Docker and runs the self-healing demo container'
+version '0.1.0'
+chef_version '>= 16.0'
